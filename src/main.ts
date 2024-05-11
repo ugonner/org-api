@@ -7,7 +7,8 @@ import { ResponseInterceptor } from './shared/interceptors/response.interceptor'
 
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-
+import * as dotenv from 'dotenv-vault';
+dotenv.config();
 
 const port = process.env.PORT || 8000;
 async function bootstrap() {
