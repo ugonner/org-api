@@ -170,7 +170,8 @@ export class StorageService {
         filePath,
         userId,
         sourceType: "local",
-        url: `${process.env.APP_URL}/${folder}/uploads/${fileName}`
+        url: `${process.env.APP_URL}/${folder}/uploads/${fileName}`,
+        secureUrl: `${process.env.APP_URL}/${folder}/uploads/${fileName}`
       }
       const writeFileStream = fs.createWriteStream(filePath);
       writeFileStream.on("error", (err) => {
