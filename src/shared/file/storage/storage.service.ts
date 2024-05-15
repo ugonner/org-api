@@ -10,6 +10,7 @@ import { S3 } from 'aws-sdk';
 import { ApiResponse } from '../../apiResponse'; 
 import { IFile } from '../dto/file.dto';
 import { promisify } from 'util';
+import { isArray } from 'class-validator';
 
 @Injectable()
 export class StorageService {
@@ -238,7 +239,6 @@ export class StorageService {
         Quiet: false, // Set to true to suppress response data (optional)
       },
     };
-
     this.getS3().deleteObjects(params, function (err, data) {
       if (err) {
         console.error('Error deleting files:', err);
@@ -248,9 +248,36 @@ export class StorageService {
     });
   }
 
-  async deleteFileLocal(file: IFile): Promise<boolean>{
+
+  async deleteFilesFromCloudinary(publicIds: string | string[]): Promise<boolean> {
+    
+   
     return new Promise((resolve, reject) => {
-      fs.unlink(file.filePath, (err) => {
+      if(isArray(publicIds)){
+        this.cloudinaryV2.api.delete_resources(
+          publicIds, function(error) {
+            if(error) reject(error);
+            else resolve(true);
+          }
+        );
+      }else if(typeof(publicIds) === "string"){
+        this.cloudinaryV2.uploader.destroy(publicIds, function(error, result) {
+          if (error) {
+            console.error('Error deleting file:', error);
+            reject(error);
+          } else {
+            console.log('File deleted successfully:', result);
+            resolve(true)
+          }
+        });
+      }
+      
+    })
+    
+  }
+  async deleteFileLocal(filePath: string): Promise<boolean>{
+    return new Promise((resolve, reject) => {
+      fs.unlink(filePath, (err) => {
         if(err) reject(err)
         resolve(true)
       })

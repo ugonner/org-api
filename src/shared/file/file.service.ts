@@ -138,15 +138,28 @@ export class FileService {
     try {
       const cloudinaryFiles = fileUrls.filter((url) => /cloudinary/i.test(url));
       const s3files = fileUrls.filter((url) => /s3/i.test(url));
+      const localUrl = new RegExp(`${process.env.APP_URL}`);
+
+      const localfilesUrl = fileUrls.filter((url) => localUrl.test(url));
       //
       const clFileIds = await this.fileModel
+      .find({
+        $or: [
+          { secureUrl: { $in: cloudinaryFiles } },
+          { url: { $in: cloudinaryFiles } },
+        ],
+      })
+      .select({ fileId: 1 });
+      
+      const localFiles = await this.fileModel
         .find({
           $or: [
-            { secureUrl: { $in: cloudinaryFiles } },
-            { url: { $in: cloudinaryFiles } },
+            { secureUrl: { $in: localfilesUrl } },
+            { url: { $in: localfilesUrl } },
           ],
         })
         .select({ fileId: 1 });
+
       const s3FileIds = await this.fileModel
         .find({
           $or: [{ secureUrl: { $in: s3files } }, { url: { $in: s3files } }],
@@ -155,9 +168,15 @@ export class FileService {
 
       let res;
       if (clFileIds.length > 0) {
-        res = await this.cloudinaryV2.api.delete_resources(
+        res = await this.storageService.deleteFilesFromCloudinary(
           clFileIds.map((file) => file.fileId),
         );
+      }
+
+      if(localFiles.length > 0){
+        await Promise.allSettled(
+          localFiles.map((lf) => this.storageService.deleteFileLocal(lf.fileId))
+        )
       }
       if (s3FileIds.length > 0) {
         res = await this.deleteFilesFromS3(
