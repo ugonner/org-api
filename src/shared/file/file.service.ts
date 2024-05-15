@@ -46,7 +46,8 @@ export class FileService {
         result = await this.storageService.uploadFileLocalDisk(uploadFile as any, userId);
       }else if(fileStoragePlatform === "s3"){
         result = await this.storageService.uploadS3(uploadFile, folder, fileInfo);
-        
+      }else if(fileStoragePlatform === "cloudinary"){
+        result = await this.storageService.uploadFileWithCloudinary(uploadFile as Express.Multer.File, userId, folder);
       }
       
       const fileObject: IFile = {

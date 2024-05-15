@@ -91,8 +91,9 @@ export class StorageService {
 
   async uploadFileWithCloudinary(
     file: Express.Multer.File,
-    folder = '/challenge-posts/',
-  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    userId: string,
+    folder = '/uploads/',
+  ): Promise<IFile> {
     return new Promise(async (resolve, reject) => {
       // if folder indicates profile images; then compress
       // const data = /profile/i.test(folder)
@@ -106,7 +107,15 @@ export class StorageService {
         },
         (error, result) => {
           if (error) return reject(error);
-          return resolve(result);
+          const fileObj: IFile = {
+            fileId: result.public_id,
+            fileType: result.resource_type,
+            secureUrl: result.secure_url ?? result.url,
+            url: result.secure_url ?? result.url,
+            userId,
+            sourceType: "cloudinary"
+          }
+          return resolve(fileObj);
         },
       );
 

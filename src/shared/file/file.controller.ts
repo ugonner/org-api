@@ -61,7 +61,7 @@ export class FileController {
     @User('id') userId: string,
     @Param('section') section: string,
   ) {
-    const storagePlatform = "local";
+    const storagePlatform = process.env.NODE_ENV === "development" ? "local": "cloudinary"
     return await this.fileService.uploadFile(file, userId, section, storagePlatform);
   }
 
@@ -87,7 +87,7 @@ export class FileController {
     @Req() request
   ) {
     console.log("got here")
-    const storagePlatform = "local";
+    const storagePlatform = process.env.NODE_ENV === "development" ? "local": "cloudinary"
     return await this.fileService.uploadMultipleFiles(files, userId, section, storagePlatform);
   }
 
@@ -111,7 +111,7 @@ export class FileController {
     @User('id') userId: string,
     @Param('section') section: string,
   ) {
-    const storagePlatform = "local";
+    const storagePlatform = process.env.NODE_ENV === "development" ? "local": "cloudinary"
     return await this.fileService.uploadFile(file, userId, section, storagePlatform);
   }
 
