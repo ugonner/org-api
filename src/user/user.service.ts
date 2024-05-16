@@ -15,6 +15,7 @@ import {
 import { MailOptions } from 'nodemailer/lib/smtp-transport';
 import { query } from 'express';
 import { EmailService } from '../shared/utils/email';
+import { SMSService } from '../shared/utils/sms/sms';
 
 @Injectable()
 export class UserService {
@@ -116,6 +117,12 @@ export class UserService {
           html: emailTemplate.html,
         };
         await EmailService.sendEmail(emailOptions);
+      }
+      else if(messageConfig.messageType === "SMS"){
+        SMSService.sendSMSWithInfoBip(
+          users.docs.map((doc) => doc.phoneNumber),
+          messageConfig.message
+        )
       }
 
       return ApiResponse.success('message sent', HttpStatus.OK, true);
